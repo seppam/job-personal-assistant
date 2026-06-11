@@ -4,11 +4,36 @@ import ConfigScreen from './components/ConfigScreen';
 import ScannerView from './components/ScannerView';
 import KanbanBoard from './components/KanbanBoard';
 import MagicEditor from './components/MagicEditor';
+import ProfileForm from './components/ProfileForm';
+import RoadmapView from './components/RoadmapView';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSync } from './services/dbSync';
-import { Sparkles, Info } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateProfile } from './store/slices/profileSlice';
 
-// Sidebar Layout Wrapper
+// ── Check if user has completed onboarding (at least one AI key set) ─────────
+const useHasKeys = () => {
+  const { geminiKey, anthropicKey } = useSelector((state) => state.config);
+  return !!(geminiKey || anthropicKey);
+};
+
+// ── Onboarding gate: redirect to /config if no keys yet ─────────────────────
+const OnboardingGate = ({ children }) => {
+  const hasKeys = useHasKeys();
+  if (!hasKeys) return <Navigate to="/config" replace />;
+  return children;
+};
+
+// ── After first sign-in with no keys: land on ConfigScreen ──────────────────
+const SmartRoot = () => {
+  const hasKeys = useHasKeys();
+  // Once keys exist, go to scanner; otherwise stay on config
+  return <Navigate to={hasKeys ? '/scanner' : '/config'} replace />;
+};
+
+// ── Sidebar Layout Wrapper ────────────────────────────────────────────────────
 const SidebarLayout = ({ children }) => {
   const location = useLocation();
   const navItems = [
@@ -32,15 +57,19 @@ const SidebarLayout = ({ children }) => {
               key={item.path}
               to={item.path}
               className={`block px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                location.pathname === item.path 
-                ? 'bg-violet-glow/10 text-violet-glow border-l-2 border-violet-glow' 
-                : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800/30'
+                location.pathname === item.path
+                  ? 'bg-violet-glow/10 text-violet-glow border-l-2 border-violet-glow'
+                  : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800/30'
               }`}
             >
               {item.label}
             </Link>
           ))}
         </nav>
+        <div className="mt-auto pt-6 border-t border-slate-800/50 flex items-center gap-3 text-sm text-slate-400">
+          <UserButton afterSignOutUrl="/" />
+          <span>Account</span>
+        </div>
       </aside>
       <main className="flex-1 overflow-y-auto">
         {children}
@@ -49,19 +78,60 @@ const SidebarLayout = ({ children }) => {
   );
 };
 
-const DashboardPlaceholder = () => (
-  <div className="p-8 text-violet-glow font-bold">
-    <h1 className="text-3xl mb-4 text-white font-black tracking-tighter">System Health</h1>
-    <div className="p-6 bg-obsidian-800/40 border border-slate-700/50 rounded-2xl max-w-md">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
-        <span className="text-xs uppercase tracking-widest font-bold">All Agents Standing By</span>
+// ── Landing Page (unauthenticated) ─────────────────────────────────────────
+const LandingPage = () => (
+  <div className="min-h-screen flex flex-col items-center justify-center bg-obsidian-900 text-center p-6 relative overflow-hidden">
+    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-violet-glow/20 via-obsidian-900/80 to-obsidian-900" />
+    <div className="relative z-10">
+      <h1 className="text-6xl font-black text-white tracking-tighter mb-4">
+        JPA_<span className="text-violet-glow italic">ASSISTANT</span>
+      </h1>
+      <p className="text-xl text-slate-400 mb-8 max-w-lg mx-auto">
+        Your Personal AI Career Companion. Map your trajectory and bridge your skill gaps.
+      </p>
+      <div className="bg-violet-glow/10 hover:bg-violet-glow/20 border border-violet-glow/50 text-violet-glow font-bold py-3 px-8 rounded-full transition-all cursor-pointer">
+        <SignInButton mode="modal" />
       </div>
-      <p className="text-sm text-slate-400 font-medium">Kinetic Archive protocols active. Monitoring for job opportunities and scan requests.</p>
     </div>
   </div>
 );
 
+// ── Sync Clerk user profile into Redux ──────────────────────────────────────
+const UserSyncProvider = ({ children }) => {
+  const { user } = useUser();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (user) {
+      dispatch(updateProfile({
+        firstName: user.firstName,
+        email: user.primaryEmailAddress?.emailAddress,
+      }));
+    }
+  }, [user, dispatch]);
+
+  return <>{children}</>;
+};
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+const Dashboard = () => (
+  <div className="p-8 max-w-7xl mx-auto h-full flex flex-col">
+    <div className="mb-8 shrink-0">
+      <h1 className="text-3xl font-black tracking-tighter text-white mb-2">Career Dashboard</h1>
+      <p className="text-slate-400">Map your trajectory and identify critical skill gaps.</p>
+    </div>
+    <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-0">
+      <div className="overflow-y-auto pr-2 custom-scrollbar">
+        <ProfileForm />
+      </div>
+      <div className="overflow-y-auto pl-2 custom-scrollbar border-t lg:border-t-0 lg:border-l border-slate-700/50 pt-8 lg:pt-0">
+        <RoadmapView />
+      </div>
+    </div>
+  </div>
+);
+
+// ── App Root ──────────────────────────────────────────────────────────────────
 function App() {
   useSync();
   const [toast, setToast] = useState(null);
@@ -87,38 +157,49 @@ function App() {
         </div>
       )}
 
-      <Routes>
-        <Route path="/config" element={<ConfigScreen />} />
+      <SignedOut>
+        <LandingPage />
+      </SignedOut>
 
-        <Route path="/" element={<Navigate to="/scanner" replace />} />
+      <SignedIn>
+        <UserSyncProvider>
+          <Routes>
+            {/* Smart root: land on scanner (if configured) or config (if first time) */}
+            <Route path="/" element={<SmartRoot />} />
 
-        {/* Wrap Protected Routes in SidebarLayout */}
-        <Route path="/scanner" element={
-          <ProtectedRoute>
-            <SidebarLayout><ScannerView /></SidebarLayout>
-          </ProtectedRoute>
-        } />
+            {/* ConfigScreen is the onboarding / settings page */}
+            <Route path="/config" element={<ConfigScreen />} />
 
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <SidebarLayout><DashboardPlaceholder /></SidebarLayout>
-          </ProtectedRoute>
-        } />
+            {/* Protected routes — all wrapped in OnboardingGate + SidebarLayout */}
+            <Route path="/scanner" element={
+              <OnboardingGate>
+                <SidebarLayout><ScannerView /></SidebarLayout>
+              </OnboardingGate>
+            } />
 
-        <Route path="/kanban" element={
-          <ProtectedRoute>
-            <SidebarLayout><KanbanBoard /></SidebarLayout>
-          </ProtectedRoute>
-        } />
+            <Route path="/dashboard" element={
+              <OnboardingGate>
+                <SidebarLayout><Dashboard /></SidebarLayout>
+              </OnboardingGate>
+            } />
 
-        <Route path="/cv-lab" element={
-          <ProtectedRoute>
-            <SidebarLayout><MagicEditor /></SidebarLayout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="*" element={<Navigate to="/scanner" replace />} />
-      </Routes>
+            <Route path="/kanban" element={
+              <OnboardingGate>
+                <SidebarLayout><KanbanBoard /></SidebarLayout>
+              </OnboardingGate>
+            } />
+
+            <Route path="/cv-lab" element={
+              <OnboardingGate>
+                <SidebarLayout><MagicEditor /></SidebarLayout>
+              </OnboardingGate>
+            } />
+
+            {/* Catch-all */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </UserSyncProvider>
+      </SignedIn>
     </div>
   );
 }

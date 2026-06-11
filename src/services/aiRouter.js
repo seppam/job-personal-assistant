@@ -119,6 +119,30 @@ class AIRouter {
     const prompt = `Context: ${context}\nContent: ${content}`;
     return await this.callAI(prompt, system);
   }
+
+  async generateCareerRoadmap(profile, targetJD) {
+    const system = "Act as a Strategic Career Mentor. Compare the user profile to the target job and identify the 5 most critical milestones to bridge the gap.";
+    const prompt = `Return a JSON array of 5 objects strictly. Structure: [{ "title": "...", "description": "...", "suggestedProject": "...", "estimatedWeeks": 2 }]
+
+Constraint: Do not include any text outside of the JSON array. Output must be valid, parseable JSON.
+
+User Profile:
+${JSON.stringify(profile)}
+
+Target Job Description:
+${targetJD}`;
+    
+    // Use the specific Gemma API key if available for this specific call, otherwise fallback to existing config
+    const apiKey = import.meta.env.VITE_GEMMA_API_KEY || this.config?.geminiKey;
+    if (!apiKey) {
+      throw new Error("Missing Gemma API Key");
+    }
+    const tempGemini = new GoogleGenerativeAI(apiKey);
+    const genModel = tempGemini.getGenerativeModel({ model: 'gemini-2.5-flash' }); // Or preferred model
+    const result = await genModel.generateContent(`${system}\n\n${prompt}`);
+    const response = result.response.text();
+    return JSON.parse(response.replace(/```json|```/gi, "").trim());
+  }
 }
 
 export const aiRouter = new AIRouter();

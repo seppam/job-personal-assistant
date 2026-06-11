@@ -7,10 +7,10 @@ const SystemCoolingOverlay = () => {
   const dispatch = useDispatch();
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md bg-obsidian-900/60 transition-all animate-in fade-in duration-500">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-6 backdrop-blur-md bg-obsidian-900/60 transition-all animate-in fade-in duration-500">
       <div className="max-w-md w-full bg-amber-950/20 border border-amber-500/30 rounded-3xl p-10 text-center shadow-[0_0_50px_rgba(245,158,11,0.15)] relative overflow-hidden">
         {/* Animated Background Pulse */}
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-linear-to-b from-amber-500/5 to-transparent pointer-events-none"></div>
         
         <div className="relative z-10">
           <div className="inline-flex items-center justify-center p-4 bg-amber-500/10 rounded-full border border-amber-500/20 mb-8">

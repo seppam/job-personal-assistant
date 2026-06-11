@@ -227,7 +227,7 @@ const MagicEditor = () => {
         {/* Right: PDF Preview */}
         <div className="w-1/2 bg-slate-100/5 p-4 flex flex-col">
           <div className="flex-1 rounded-xl overflow-hidden border border-slate-800/50 shadow-2xl relative">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-violet-glow/20 to-transparent z-10"></div>
+            <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-transparent via-violet-glow/20 to-transparent z-10"></div>
             <PDFViewer width="100%" height="100%" showToolbar={false} style={{ border: 'none' }}>
               {pdfDoc}
             </PDFViewer>

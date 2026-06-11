@@ -8,16 +8,29 @@ const loadFromStorage = (key) => {
   }
 };
 
+const envGemini = import.meta.env.VITE_GEMMA_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || '';
+const envAnthropic = import.meta.env.VITE_ANTHROPIC_API_KEY || '';
+const envMongoUri = import.meta.env.VITE_MONGODB_URI || '';
+const envAtlasAppId = import.meta.env.VITE_ATLAS_APP_ID || '';
+const envAtlasApiKey = import.meta.env.VITE_ATLAS_API_KEY || '';
+
 const initialState = {
-  geminiKey: loadFromStorage('JPA_GEMINI_KEY'),
-  anthropicKey: loadFromStorage('JPA_ANTHROPIC_KEY'),
-  mongoUri: loadFromStorage('JPA_MONGO_URI'),
-  atlasAppId: loadFromStorage('JPA_ATLAS_APP_ID'),
-  atlasApiKey: loadFromStorage('JPA_ATLAS_API_KEY'),
+  geminiKey: envGemini || loadFromStorage('JPA_GEMINI_KEY'),
+  anthropicKey: envAnthropic || loadFromStorage('JPA_ANTHROPIC_KEY'),
+  mongoUri: envMongoUri || loadFromStorage('JPA_MONGO_URI'),
+  atlasAppId: envAtlasAppId || loadFromStorage('JPA_ATLAS_APP_ID'),
+  atlasApiKey: envAtlasApiKey || loadFromStorage('JPA_ATLAS_API_KEY'),
   preferredModel: loadFromStorage('JPA_PREFERRED_MODEL') || 'gemini-2.5-flash',
   isInitialized: false,
   isRateLimited: false,
   rateLimitExpiry: null,
+  envLocks: {
+    geminiKey: !!envGemini,
+    anthropicKey: !!envAnthropic,
+    mongoUri: !!envMongoUri,
+    atlasAppId: !!envAtlasAppId,
+    atlasApiKey: !!envAtlasApiKey,
+  }
 };
 
 const configSlice = createSlice({

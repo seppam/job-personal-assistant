@@ -53,7 +53,7 @@ const ScannerView = () => {
     if (error.startsWith('KEY_REQUIRED')) {
       return (
         <div className="bg-red-950/20 border border-red-900/40 text-red-400 p-6 rounded-xl mb-8 flex items-start gap-4">
-          <Key className="w-6 h-6 flex-shrink-0" />
+          <Key className="w-6 h-6 shrink-0" />
           <div>
             <h3 className="font-bold text-lg mb-1">Key Required</h3>
             <p className="text-sm opacity-80">The selected model requires an active API key. System fallback failed or no keys available.</p>
@@ -64,7 +64,7 @@ const ScannerView = () => {
 
     return (
       <div className="bg-red-950/20 border border-red-900/40 text-red-400 p-4 rounded-lg mb-8 flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+        <AlertTriangle className="w-5 h-5 shrink-0" />
         <p className="text-sm">{error === 'EXTRACTION_FAILED' ? 'Could not extract text from link. Please use Copy-Paste method.' : error}</p>
       </div>
     );
@@ -112,7 +112,7 @@ const ScannerView = () => {
         <section className="bg-obsidian-800/40 border border-slate-700/50 rounded-xl p-6 backdrop-blur-md mb-8">
           <form onSubmit={handleScan} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <label className="flex text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 items-center gap-2">
                 Target URL or Job Description
                 {(!config.geminiKey && !config.anthropicKey) && (
                   <span className="text-red-500 flex items-center gap-1 font-bold">
