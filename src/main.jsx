@@ -6,11 +6,12 @@ import { store } from './store'
 import App from './App.jsx'
 import './index.css'
 
-import { ClerkProvider } from '@clerk/clerk-react';
+import { ClerkProvider } from './auth';
+import { isDemo } from './demo/demo';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-if (!PUBLISHABLE_KEY) {
+if (!PUBLISHABLE_KEY && !isDemo) {
   throw new Error("Missing Publishable Key");
 }
 

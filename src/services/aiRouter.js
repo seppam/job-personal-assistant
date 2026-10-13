@@ -4,6 +4,9 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { store } from '../store';
 import { setRateLimited } from '../store/slices/configSlice';
+import { isDemo, demoScan, demoMatch, demoRoadmap } from '../demo/demo';
+
+const demoDelay = () => new Promise((r) => setTimeout(r, 800));
 
 class AIRouter {
   constructor() {
@@ -102,12 +105,14 @@ class AIRouter {
   }
 
   async scanJob(text) {
+    if (isDemo) { await demoDelay(); return demoScan; }
     const system = `Expert HR Fraud Investigator. Analyze job vacancy. JSON ONLY: score, verdict, flags, recommendation.`;
     const result = await this.callAI(text, system);
     return JSON.parse(result);
   }
 
   async analyzeCV(cvText, jdText) {
+    if (isDemo) { await demoDelay(); return demoMatch; }
     const system = "Expert Career Coach. Analyze Match. Return JSON: matchScore, strengths(array), gaps(array), preppMode(string).";
     const prompt = `CV: ${cvText}\nJD: ${jdText}`;
     const result = await this.callAI(prompt, system);
@@ -115,12 +120,14 @@ class AIRouter {
   }
 
   async polishSection(content, context) {
+    if (isDemo) { await demoDelay(); return content.trim().split('\n').map((l) => l.replace(/^Built/, 'Engineered').replace(/^Cut/, 'Reduced').replace(/^Delivered/, 'Shipped')).join('\n'); }
     const system = "Linguistic Excellence Engine. Polish the resume section. Use impactful action verbs.";
     const prompt = `Context: ${context}\nContent: ${content}`;
     return await this.callAI(prompt, system);
   }
 
   async generateCareerRoadmap(profile, targetJD) {
+    if (isDemo) { await demoDelay(); return demoRoadmap; }
     const system = "Act as a Strategic Career Mentor. Compare the user profile to the target job and identify the 5 most critical milestones to bridge the gap.";
     const prompt = `Return a JSON array of 5 objects strictly. Structure: [{ "title": "...", "description": "...", "suggestedProject": "...", "estimatedWeeks": 2 }]
 

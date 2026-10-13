@@ -2,6 +2,20 @@
 
 **JPA Assistant** is a premium, AI-powered career companion designed to revolutionize the job-seeking experience. By integrating advanced Large Language Models (LLMs), it provides job seekers with the tools they need to navigate the modern job market with confidence and precision.
 
+> **Live demo: currently offline** (the hosted deployment is paused). Run it locally with the offline demo mode below.
+
+---
+
+## 📸 Screenshots
+
+Captured in offline demo mode with fictional sample data.
+
+| | |
+| :--- | :--- |
+| ![Job scanner result](docs/screenshots/01-scanner-scan-result.webp)<br>Job scanner: fraud verdict, trust score and red flags | ![Application pipeline](docs/screenshots/02-pipeline-board.webp)<br>Kanban application pipeline |
+| ![Career dashboard and roadmap](docs/screenshots/03-dashboard-roadmap.webp)<br>Career profile and AI roadmap | ![CV Lab](docs/screenshots/04-cv-lab.webp)<br>CV Lab with live PDF preview |
+| ![CV match analysis](docs/screenshots/05-cv-lab-ai-match.webp)<br>CV vs job description gap analysis | ![Mobile pipeline](docs/screenshots/06-mobile-pipeline.webp)<br>Mobile (390 px) |
+
 ---
 
 ## 📖 What is JPA Assistant?
@@ -65,26 +79,41 @@ The primary mission of JPA Assistant is to **democratize high-end career coachin
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Run locally
 
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/yourusername/jpa-assistant.git
-    ```
-2.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
-3.  **Setup Environment**:
-    Create a `.env` file and add your AI keys:
-    ```env
-    VITE_GEMINI_API_KEY=your_key_here
-    VITE_ANTHROPIC_API_KEY=your_key_here
-    ```
-4.  **Run in development**:
-    ```bash
-    npm run dev
-    ```
+Requires Node.js 20+ and npm.
+
+```bash
+git clone https://github.com/seppam/job-personal-assistant.git
+cd job-personal-assistant
+npm install
+```
+
+### Option A: offline demo (no accounts, no API keys)
+
+```bash
+npm run dev:demo
+```
+
+Open the printed local URL (default http://localhost:5173). Demo mode (`VITE_DEMO_MODE=true`, see `.env.demo`) skips Clerk sign-in, loads fictional sample data and returns canned results for the scanner, CV analysis and roadmap. No network calls are made to AI providers.
+
+### Option B: full app with your own keys
+
+> **AI features need your own API key.** The scanner, CV analysis, polishing and roadmap call Google Gemini or Anthropic Claude directly from the browser; no key is bundled with this repository. Sign-in uses Clerk, so a Clerk publishable key is also required.
+
+Create `.env.local` (git-ignored) and add your own values:
+
+```env
+VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+VITE_GEMINI_API_KEY=your_key_here
+VITE_ANTHROPIC_API_KEY=your_key_here   # optional
+```
+
+```bash
+npm run dev
+```
+
+Other scripts: `npm run build`, `npm run lint` (there is no test suite yet).
 
 ---
 *Built with ❤️ for the future of work.*

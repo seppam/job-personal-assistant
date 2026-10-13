@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import debounce from 'lodash.debounce';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from '../auth';
 
 class DBSyncService {
   constructor() {

@@ -9,7 +9,7 @@ import RoadmapView from './components/RoadmapView';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useSync } from './services/dbSync';
 import { Sparkles } from 'lucide-react';
-import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from './auth';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProfile } from './store/slices/profileSlice';
 
@@ -45,8 +45,21 @@ const SidebarLayout = ({ children }) => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-obsidian-900 border-l border-slate-800/10">
-      <aside className="w-64 border-r border-slate-800/50 bg-obsidian-900 flex flex-col p-6 sticky top-0 h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen bg-obsidian-900 border-l border-slate-800/10">
+      <nav className="md:hidden flex gap-1 overflow-x-auto border-b border-slate-800/50 bg-obsidian-900 px-3 py-2 sticky top-0 z-40">
+        {navItems.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium ${
+              location.pathname === item.path ? 'bg-violet-glow/10 text-violet-glow' : 'text-slate-500'
+            }`}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+      <aside className="hidden md:flex w-64 border-r border-slate-800/50 bg-obsidian-900 flex flex-col p-6 sticky top-0 h-screen">
         <div className="mb-10">
           <h2 className="text-xl font-bold text-violet-glow tracking-tighter italic">JPA_ASSISTANT</h2>
           <div className="text-[10px] text-slate-600 font-mono tracking-widest">KINETIC_CORE_v1.0</div>
@@ -71,7 +84,7 @@ const SidebarLayout = ({ children }) => {
           <span>Account</span>
         </div>
       </aside>
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 min-w-0 overflow-y-auto">
         {children}
       </main>
     </div>
